@@ -1,0 +1,74 @@
+version: '3.9'
+services:
+  nginx:
+    container_name: nginx
+    restart: on-failure
+    image: nginx:1.23.3
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    ports:
+      - '8000:80'
+    networks:
+      - nginx
+    profiles: ['prod']
+
+  auth:
+    container_name: auth
+    restart: on-failure
+    build:
+      context: ./auth
+      args:
+        - APPHOMEDIR
+        - USERNAME
+        - USER_UID
+        - USER_GID
+    image: practice/auth
+    env_file:
+      - ./auth/.env
+    networks:
+      - auth
+      - nginx
+    profiles: ['prod']
+
+  postgres:
+    container_name: postgres
+    restart: on-failure
+    image: postgres:15.2
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+    networks:
+      - auth
+    profiles: ['prod']
+
+  redis:
+    container_name: redis
+    restart: on-failure
+    image: bitnami/redis:7.0.9
+    volumes:
+      - auth_redis:/bitnami/redis/data
+    environment:
+      - REDIS_PASSWORD
+    networks:
+      - auth
+      - redis
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 100mb
+    profiles: ['prod']
+
+networks:
+  nginx:
+    external: True
+  auth:
+    external: True
+  redis:
+    external: True
+
+volumes:
+  auth_pgdata:
+    external: True
+  auth_redis:
+    external: True

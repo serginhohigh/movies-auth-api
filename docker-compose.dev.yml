@@ -1,0 +1,24 @@
+version: '3.9'
+services:
+  postgres:
+    ports:
+      - '5432:5432'
+    profiles: ['dev']
+
+  redis:
+    ports:
+      - '6379:6379'
+    profiles: ['dev']
+
+  rediscommander:
+    container_name: rediscommander
+    restart: on-failure
+    image: rediscommander/redis-commander:latest
+    ports:
+      - '9000:8081'
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD
+    networks:
+      - redis
+    profiles: ['dev']

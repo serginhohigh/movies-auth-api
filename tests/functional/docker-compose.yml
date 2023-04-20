@@ -1,0 +1,56 @@
+version: '3'
+services:
+  pytest:
+    container_name: pytest
+    build:
+      context: .
+      args:
+        - EXECUTEFROMPATH
+        - TESTHOMEDIR
+    image: testing/pytest
+    environment:
+      - REDIS_HOST
+      - REDIS_PORT
+      - REDIS_PASSWORD
+      - REDIS_DB
+      - AUTH_HOST
+      - AUTH_PORT
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - POSTGRES_SCHEMA
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
+
+  auth:
+    container_name: test-auth
+    build:
+      context: ../../auth/
+      args:
+        - APPHOMEDIR
+        - USERNAME
+        - USER_UID
+        - USER_GID
+    image: testing/auth
+    env_file:
+      - ../../auth/.env
+    environment:
+      # Переопределение переменных для тестов
+      - REDIS_HOST=test-redis
+      - ES_HOST=test-postgres
+
+  redis:
+    container_name: test-redis
+    image: bitnami/redis:7.0.9
+    environment:
+      - REDIS_PASSWORD
+    command: /opt/bitnami/scripts/redis/run.sh --maxmemory 100mb
+
+  postgres:
+    container_name: test-postgres
+    restart: on-failure
+    image: postgres:15.2
+    environment:
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB

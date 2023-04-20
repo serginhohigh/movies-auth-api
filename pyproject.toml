@@ -1,0 +1,33 @@
+[tool.ruff]
+select = ['ANN', 'ARG', 'B', 'BLE', 'C40', 'COM', 'DJ', 'DTZ', 'E', 'EM', 'ERA001', 'EXE', 'F', 'FBT', 'G', 'I', 'ICN', 'INP', 'ISC', 'N', 'PIE', 'PL', 'PT', 'PYI', 'Q', 'RET', 'RSE', 'S', 'SIM', 'SLF', 'T20', 'TRY', 'W', 'YTT', 'UP']
+exclude = ['auth/src/migrations']
+ignore = ['ANN101', 'ANN102', 'ANN401', 'ERA001', 'PLR0913']
+show-fixes = true
+target-version = "py311"
+line-length = 88
+src = ['auth/src']
+
+[tool.ruff.per-file-ignores]
+'auth/src/wsgi_app.py' = ['I001', 'E402', 'F401']
+'auth/src/db/postgres.py' = ['F401']
+'auth/src/api/v1/admin.py' = ['ANN201']
+'auth/src/api/v1/auth.py' = ['ANN201']
+'auth/src/api/v1/user.py' = ['ANN201']
+'auth/src/api/schemas/role.py' = ['ANN001', 'ARG002', 'ANN003', 'TRY003', 'EM101']
+'tests*' = ['S101']
+'tests/functional/settings.py' = ['N805']
+'tests/functional/testdata/tests_cases.py' = ['S105']
+'tests/functional/utils/backoff.py' = ['ANN001', 'ANN002', 'ANN003', 'ANN201', 'ANN202']
+
+[tool.ruff.flake8-quotes]
+inline-quotes = 'single'
+
+[tool.ruff.flake8-pytest-style]
+fixture-parentheses = false
+mark-parentheses = false
+
+[tool.pytest.ini_options]
+testpaths = ['tests/functional']
+
+[tool.ruff.isort]
+known-local-folder = ['tests']

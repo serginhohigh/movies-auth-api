@@ -1,0 +1,23 @@
+version: '3'
+services:
+  auth:
+    ports:
+      - '8000:8000'
+
+  redis:
+    ports:
+      - '6379:6379'
+
+  postgres:
+    ports:
+      - '5432:5432'
+
+  rediscommander:
+    container_name: rediscommander
+    restart: on-failure
+    image: rediscommander/redis-commander:latest
+    ports:
+      - '9000:8081'
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD
