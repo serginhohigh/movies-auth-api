@@ -26,11 +26,15 @@ class Settings(BaseSettings):
 
     API_TITLE: str
     API_VERSION: str
+    API_DESCRIPTION: str
+    API_SPEC_OPTIONS: dict | None = None
     OPENAPI_VERSION: str
     OPENAPI_JSON_PATH: str
     OPENAPI_URL_PREFIX: str
     OPENAPI_SWAGGER_UI_PATH: str
     OPENAPI_SWAGGER_UI_URL: str = Field(default='https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.18.1/')
+
+    DEBUG: bool = False
 
     def __init__(self, **data: dict) -> None:
         super().__init__(**data)
@@ -40,6 +44,12 @@ class Settings(BaseSettings):
             f'@{self.PG_HOST}:{self.PG_PORT}/{self.PG_DB}'
             f'?options=-c search_path=public,{self.PG_SCHEMA}'
         )
+
+        self.API_SPEC_OPTIONS = {
+            'info': {
+                'description': self.API_DESCRIPTION,
+            },
+        }
 
 
 settings = Settings()
