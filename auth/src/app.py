@@ -3,6 +3,7 @@ from flask_smorest import Api
 
 from api.v1.admin import admin_bp
 from api.v1.auth import auth_bp
+from api.v1.service import service_bp
 from api.v1.user import user_bp
 from cli import cli_bp
 from core.config import settings
@@ -27,6 +28,7 @@ def create_app() -> Flask:
     api.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
     api.register_blueprint(user_bp, url_prefix='/api/v1/users')
     api.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
+    api.register_blueprint(service_bp, url_prefix='/api/v1/service')
 
     app.register_blueprint(cli_bp, cli_group=None)
 
