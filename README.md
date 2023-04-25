@@ -3,13 +3,13 @@
  - Swagger или файл с openapi по следующим путям 
    - `/admin/api/v1/auth/swagger`
    - `/admin/api/v1/auth/openapi.json`
- - Для включения трассировки необходимо выполнить следующие действия
+ - Для включения трассировки необходимо выполнить указанные ниже действия. Для просмотра в браузере используйте путь `/admin/jaeger`
    - добавить в `./auth/.env` переменную `DEBUG=True` и перезапустить сервис
    - поднять jaeger с помощью команды `make dev-run c=jaeger`
  - Проверить rate-limiting можно с помощью указанной ниже команды. Текущая настройка позволяет отправлять 3 запроса в секунду
- ```
- for n in {1..22}; do echo $(curl -s -w " :: HTTP %{http_code}, %{size_download} bytes, %{time_total} s" -X GET http://127.0.0.1:8000/api/v1/service/ping); sleep 0.1; done
- ```
+```
+for n in {1..22}; do echo $(curl -s -w " :: HTTP %{http_code}, %{size_download} bytes, %{time_total} s" -X GET http://127.0.0.1:8000/api/v1/service/ping); sleep 0.1; done
+```
 
  ## Как запуститьться
  - Выполнить команду `make install` (создаст сети, хранилища в докере и пустые `env` файлы)

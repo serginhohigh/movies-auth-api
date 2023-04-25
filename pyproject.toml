@@ -8,10 +8,12 @@ line-length = 88
 src = ['auth/src']
 
 [tool.ruff.per-file-ignores]
+'auth/src/app.py' = ['TRY003', 'EM101']
 'auth/src/wsgi_app.py' = ['I001', 'E402', 'F401']
 'auth/src/db/postgres.py' = ['F401']
 'auth/src/api/v1/admin.py' = ['ANN201']
 'auth/src/api/v1/auth.py' = ['ANN201']
+'auth/src/api/v1/oauth.py' = ['ANN201']
 'auth/src/api/v1/user.py' = ['ANN201']
 'auth/src/api/v1/service.py' = ['ANN201']
 'auth/src/api/schemas/role.py' = ['ANN001', 'ARG002', 'ANN003', 'TRY003', 'EM101']

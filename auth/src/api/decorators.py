@@ -1,7 +1,7 @@
 from collections.abc import Callable, Sequence
 from functools import wraps
 
-from api.utils import verify_jwt_in_request
+from api.utils.jwt_verifier import verify_jwt_in_request
 from core.permissions import Permissions
 
 

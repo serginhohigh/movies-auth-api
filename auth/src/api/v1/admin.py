@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from api.schemas.role import RoleSchema, RoleSchemaCreate, RoleSchemaModify
 from api.schemas.user import UserAssignRoleSchema
-from api.utils import verify_jwt_in_request
+from api.utils.jwt_verifier import verify_jwt_in_request
 from api.validators import valid_role_id, valid_user_id
 from core.permissions import Permissions
 from db.postgres import db

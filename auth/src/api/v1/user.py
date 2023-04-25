@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from api.schemas.device import DeviceSchema
 from api.schemas.user import UserChangePasswordSchema, UserChangeUsernameSchema
-from api.utils import verify_jwt_in_request
+from api.utils.jwt_verifier import verify_jwt_in_request
 from api.validators import valid_user_id, valid_user_password
 from db.postgres import db
 from models.device import Device

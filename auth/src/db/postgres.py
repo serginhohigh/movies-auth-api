@@ -15,7 +15,7 @@ def init_migrations(app: Flask, db: SQLAlchemy) -> None:
     Без предварительного импорта моделей работать миграции не будут!
     """
 
-    from models import user
+    from models import device, role, social, user
 
     migrate.init_app(app, db, compare_type=True)
 

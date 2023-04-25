@@ -1,26 +1,19 @@
 import json
-from abc import ABC, abstractmethod
 from typing import Any as AnyType
 from uuid import UUID
 
+from flask import Flask
+from opentelemetry.instrumentation.redis import RedisInstrumentor
 from redis import Redis
 
-
-class CacheClient(ABC):
-    @abstractmethod
-    def set(self) -> Exception:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get(self) -> Exception:
-        raise NotImplementedError
+from db.abstract.cache import CacheClient
 
 
 class RedisCacheClient(CacheClient):
     def __init__(self, connection: Redis) -> None:
         self.redis = connection
 
-    def set(self, key: str | UUID, value: AnyType, ttl: int) -> None:
+    def set(self, key: str | UUID, value: AnyType, ttl: int = -1) -> None:
         if isinstance(key, UUID):
             key = str(key)
 
@@ -32,6 +25,11 @@ class RedisCacheClient(CacheClient):
         if value:
             return json.loads(value)
         return value
+
+
+def init_redis_opentelemetry(app: Flask) -> None:
+    with app.app_context():
+        RedisInstrumentor().instrument()
 
 
 def init_redis(

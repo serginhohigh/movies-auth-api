@@ -1,4 +1,6 @@
+import string
 from datetime import UTC, datetime
+from secrets import choice as secrets_choice
 from typing import Any as AnyType
 from typing import TypeAlias
 from uuid import UUID
@@ -36,6 +38,10 @@ class AuthService:
             datetime.fromtimestamp(token_exp, tz=UTC) - datetime.now(tz=UTC)
         ).total_seconds()
         self.cache_client.set(jti, user_id, round(ttl) + 1)
+
+    def gen_random_password(self) -> str:
+        alphabet = string.ascii_letters + string.digits
+        return ''.join(secrets_choice(alphabet) for _ in range(16))
 
     def get_token_from_blacklist(self, jti: str) -> AnyType | None:
         return self.cache_client.get(jti)

@@ -24,6 +24,8 @@ class User(UUIDMixin, TimeStampedMixin, db.Model):
     role = db.relationship('Role', uselist=False, back_populates='users')
     devices = db.relationship('Device', cascade='all, delete', passive_deletes=True)
     info = db.relationship('UserInfo', cascade='all, delete', passive_deletes=True)
+    socials = db.relationship(
+        'SocialAccount', cascade='all, delete', passive_deletes=True)
 
     @property
     def password(self) -> Exception:
