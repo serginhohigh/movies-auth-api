@@ -64,9 +64,9 @@ class Limiter:
             redis_client.set(search_key, [current_datetime.second, 1], 59)
             return
 
-        second_in_hour, req_count_per_second = current_state
+        current_second_in_minute, req_count_per_second = current_state
 
-        if second_in_hour == current_datetime.second:
+        if current_second_in_minute == current_datetime.second:
             if req_count_per_second >= max_req_count:
                 abort(HTTPStatus.TOO_MANY_REQUESTS, message='Too many requests')
 
