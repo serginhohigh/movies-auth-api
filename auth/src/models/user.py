@@ -44,28 +44,17 @@ class User(UUIDMixin, TimeStampedMixin, db.Model):
         ).first()
 
         if device:
-            device.date_auth = datetime.now(tz=UTC)
+            device.logged_in_at = datetime.now(tz=UTC)
             db.session.add(device)
         else:
             device = Device(
                 ip_address=ip_address,
                 user_agent=user_agent,
-                date_auth=datetime.now(tz=UTC),
+                logged_in_at=datetime.now(tz=UTC),
             )
             self.devices.append(device)
             db.session.add(self)
         db.session.commit()
-
-
-    def make_logout(self, *, ip_address: str, user_agent: str) -> None:
-        device = Device.query.filter_by(
-            user_id=self.id, ip_address=ip_address, user_agent=user_agent,
-        ).first()
-
-        if device:
-            device.date_logout = datetime.now(tz=UTC)
-            db.session.add(device)
-            db.session.commit()
 
     def __repr__(self) -> str:
         return f'<User {self.username}>'

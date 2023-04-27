@@ -11,7 +11,7 @@ from models.mixins import TimeStampedMixin, UUIDMixin
 class SocialAccount(UUIDMixin, TimeStampedMixin, db.Model):
     __tablename__ = 'social_account'
     __table_args__ = (
-        db.UniqueConstraint('social_id', 'social_name', name='social_pk'),
+        db.UniqueConstraint('social_id', 'social_name'),
     )
 
     user_id = db.Column(ForeignKey('users.id', ondelete='CASCADE'), nullable=False)

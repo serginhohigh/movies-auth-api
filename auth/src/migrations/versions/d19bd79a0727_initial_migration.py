@@ -1,19 +1,19 @@
 """Initial migration
 
-Revision ID: dbc9d353c0e6
+Revision ID: d19bd79a0727
 Revises:
-Create Date: 2023-04-18 19:00:34.880620
+Create Date: 2023-04-26 14:39:35.561057
 
 """
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision = 'dbc9d353c0e6'
+revision = 'd19bd79a0727'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,9 +28,9 @@ def upgrade():
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('created', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('modified', sa.TIMESTAMP(timezone=True), nullable=False),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id'),
-    sa.UniqueConstraint('name'),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_roles')),
+    sa.UniqueConstraint('id', name=op.f('uq_roles_id')),
+    sa.UniqueConstraint('name', name=op.f('uq_roles_name')),
     schema='auth'
     )
     op.create_table('users',
@@ -41,28 +41,38 @@ def upgrade():
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('created', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('modified', sa.TIMESTAMP(timezone=True), nullable=False),
-    sa.ForeignKeyConstraint(['role_id'], ['auth.roles.id'], ),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('email'),
-    sa.UniqueConstraint('id'),
-    sa.UniqueConstraint('username'),
+    sa.ForeignKeyConstraint(['role_id'], ['auth.roles.id'], name=op.f('fk_users_role_id_roles')),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_users')),
+    sa.UniqueConstraint('email', name=op.f('uq_users_email')),
+    sa.UniqueConstraint('id', name=op.f('uq_users_id')),
+    sa.UniqueConstraint('username', name=op.f('uq_users_username')),
     schema='auth'
     )
     op.create_table('devices',
+    sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('user_agent', sa.Text(), nullable=False),
     sa.Column('ip_address', postgresql.INET(), nullable=False),
-    sa.Column('date_auth', sa.TIMESTAMP(timezone=True), nullable=True),
-    sa.Column('date_logout', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.Column('logged_in_at', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['auth.users.id'], name=op.f('fk_devices_user_id_users'), ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id', 'logged_in_at', name=op.f('pk_devices')),
+    sa.UniqueConstraint('id', 'logged_in_at', name=op.f('uq_devices_id')),
+    schema='auth',
+    postgresql_partition_by='RANGE (logged_in_at)'
+    )
+    op.create_table('social_account',
+    sa.Column('user_id', sa.UUID(), nullable=False),
+    sa.Column('social_id', sa.Text(), nullable=False),
+    sa.Column('social_name', sa.String(length=40), nullable=False),
     sa.Column('id', sa.UUID(), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['auth.users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id'),
+    sa.Column('created', sa.TIMESTAMP(timezone=True), nullable=False),
+    sa.Column('modified', sa.TIMESTAMP(timezone=True), nullable=False),
+    sa.ForeignKeyConstraint(['user_id'], ['auth.users.id'], name=op.f('fk_social_account_user_id_users'), ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_social_account')),
+    sa.UniqueConstraint('id', name=op.f('uq_social_account_id')),
+    sa.UniqueConstraint('social_id', 'social_name', name=op.f('uq_social_account_social_id')),
     schema='auth'
     )
-    with op.batch_alter_table('devices', schema='auth') as batch_op:
-        batch_op.create_index('devices_user_id_idx', ['user_id'], unique=False)
-
     op.create_table('users_info',
     sa.Column('user_id', sa.UUID(), nullable=False),
     sa.Column('first_name', sa.String(length=64), nullable=True),
@@ -73,10 +83,10 @@ def upgrade():
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('created', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('modified', sa.TIMESTAMP(timezone=True), nullable=False),
-    sa.ForeignKeyConstraint(['user_id'], ['auth.users.id'], ondelete='CASCADE'),
-    sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id'),
-    sa.UniqueConstraint('user_id'),
+    sa.ForeignKeyConstraint(['user_id'], ['auth.users.id'], name=op.f('fk_users_info_user_id_users'), ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id', name=op.f('pk_users_info')),
+    sa.UniqueConstraint('id', name=op.f('uq_users_info_id')),
+    sa.UniqueConstraint('user_id', name=op.f('uq_users_info_user_id')),
     schema='auth'
     )
     # ### end Alembic commands ###
@@ -112,13 +122,34 @@ def upgrade():
         ]
     )
 
+    op.execute(
+        """
+        CREATE TABLE IF NOT EXISTS auth.devices_y2023q2
+        PARTITION OF devices FOR VALUES FROM ('2023-04-01') TO ('2023-06-30')
+        """,
+    )
+    op.execute(
+        """
+        CREATE TABLE IF NOT EXISTS auth.devices_y2023q3
+        PARTITION OF devices FOR VALUES FROM ('2023-07-01') TO ('2023-09-30')
+        """,
+    )
+    op.execute(
+        """
+        CREATE TABLE IF NOT EXISTS auth.devices_y2023q4
+        PARTITION OF devices FOR VALUES FROM ('2023-10-01') TO ('2023-12-31')
+        """,
+    )
+
 
 def downgrade():
+    op.drop_table('devices_y2023q2', schema='auth')
+    op.drop_table('devices_y2023q3', schema='auth')
+    op.drop_table('devices_y2023q4', schema='auth')
+
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('users_info', schema='auth')
-    with op.batch_alter_table('devices', schema='auth') as batch_op:
-        batch_op.drop_index('devices_user_id_idx')
-
+    op.drop_table('social_account', schema='auth')
     op.drop_table('devices', schema='auth')
     op.drop_table('users', schema='auth')
     op.drop_table('roles', schema='auth')

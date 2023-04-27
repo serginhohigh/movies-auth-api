@@ -42,7 +42,7 @@ class UsersLogin(MethodView):
         valid_user_password(user, password)
 
         client_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
-        user_agent = request.headers.get('User-Agent')
+        user_agent = request.user_agent.string
 
         user.make_login(ip_address=client_ip, user_agent=user_agent)
 
@@ -89,17 +89,12 @@ class UsersLogout(MethodView):
         refresh_token_jti = g.refresh_token_jti
         refresh_token_exp = g.refresh_token_exp
         user_id = g.user_id
-        client_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
-        user_agent = request.headers.get('User-Agent')
 
         auth_service.add_token_to_blacklist(
             jti=refresh_token_jti,
             user_id=user_id,
             token_exp=refresh_token_exp,
         )
-
-        user = User.query.filter_by(id=user_id).first()
-        user.make_logout(ip_address=client_ip, user_agent=user_agent)
 
         resp = make_response({'success': True}, HTTPStatus.OK)
         resp.delete_cookie(auth_service.access_token_cookie_name)
