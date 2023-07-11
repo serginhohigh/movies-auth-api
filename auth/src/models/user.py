@@ -1,16 +1,23 @@
 from datetime import UTC, datetime
+from http import HTTPStatus
+from typing import Self
 
 import bcrypt
+from flask import request
+from flask_smorest import abort
 from sqlalchemy import (
     ForeignKey,
     Integer,
     String,
 )
 from sqlalchemy.dialects.postgresql import BYTEA
+from sqlalchemy.exc import IntegrityError
 
 from db.postgres import db
 from models.device import Device
 from models.mixins import TimeStampedMixin, UUIDMixin
+from models.role import Role
+from models.social import SocialAccount
 
 
 class User(UUIDMixin, TimeStampedMixin, db.Model):
@@ -38,7 +45,52 @@ class User(UUIDMixin, TimeStampedMixin, db.Model):
     def password_verify(self, password: str) -> bool:
         return bcrypt.checkpw(password.encode('utf-8'), self.password_hash)
 
-    def make_login(self, *, ip_address: str, user_agent: str) -> None:
+    @classmethod
+    def login_via_social(
+            cls,
+            social_id: str,
+            social_name: str,
+            email: str,
+            username: str,
+            password: str,
+        ) -> Self:
+        user = cls.query.filter_by(email=email).first()
+        if user:
+            user.socials.append(
+                SocialAccount(social_id=social_id, social_name=social_name),
+            )
+            try:
+                db.session.add(user)
+                db.session.commit()
+            except IntegrityError:
+                db.session.rollback()
+        else:
+            user = cls(
+                email=email,
+                username=username,
+                password=password,
+                role=Role.default,
+            )
+            user.socials.append(
+                SocialAccount(social_id=social_id, social_name=social_name),
+            )
+
+            try:
+                db.session.add(user)
+                db.session.commit()
+            except IntegrityError:
+                abort(
+                    HTTPStatus.CONFLICT,
+                    message='This social account already used by another user',
+                )
+
+        user.login(
+            ip_address=request.headers.get('X-Forwarded-For') or request.remote_addr,
+            user_agent=request.user_agent.string,
+        )
+        return user
+
+    def login(self, *, ip_address: str, user_agent: str) -> None:
         device = Device.query.filter_by(
             user_id=self.id, ip_address=ip_address, user_agent=user_agent,
         ).first()

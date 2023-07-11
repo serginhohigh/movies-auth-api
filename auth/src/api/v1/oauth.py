@@ -1,17 +1,13 @@
 from http import HTTPStatus
 
 from dependency_injector.wiring import Provide, inject
-from flask import make_response, request, url_for
+from flask import make_response, url_for
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from sqlalchemy.exc import IntegrityError
 
 from api.utils.oauth import oauth
 from api.utils.social_providers import SocialProviderType
 from core.containers import Container
-from db.postgres import db
-from models.role import Role
-from models.social import SocialAccount
 from models.user import User
 from services.auth import AuthService
 
@@ -62,40 +58,13 @@ class OauthSocialProviderCallback(MethodView):
         except KeyError:
             abort(HTTPStatus.NOT_FOUND, message='Wrong answer from social provider')
 
-        user = User.query.filter_by(email=email).first()
-        if user:
-            user.socials.append(
-                SocialAccount(social_id=social_id, social_name=social_provider.name),
-            )
-            try:
-                db.session.add(user)
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
-        else:
-            user = User(
-                email=email,
-                username=username,
-                password=auth_service.gen_random_password(),
-                role=Role.default,
-            )
-            user.socials.append(
-                SocialAccount(social_id=social_id, social_name=social_provider.name),
-            )
-
-            try:
-                db.session.add(user)
-                db.session.commit()
-            except IntegrityError:
-                abort(
-                    HTTPStatus.CONFLICT,
-                    message='This social account already used by another user',
-                )
-
-        client_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
-        user_agent = request.user_agent.string
-
-        user.make_login(ip_address=client_ip, user_agent=user_agent)
+        user = User.login_via_social(
+            social_id,
+            social_provider.name,
+            email,
+            username,
+            auth_service.gen_random_password(),
+        )
 
         resp = make_response({'success': True}, HTTPStatus.OK)
         return auth_service.gen_tokens(resp, user.id, user.role.name)

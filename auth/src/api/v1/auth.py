@@ -44,7 +44,7 @@ class UsersLogin(MethodView):
         client_ip = request.headers.get('X-Forwarded-For') or request.remote_addr
         user_agent = request.user_agent.string
 
-        user.make_login(ip_address=client_ip, user_agent=user_agent)
+        user.login(ip_address=client_ip, user_agent=user_agent)
 
         resp = make_response({'success': True}, HTTPStatus.OK)
         return auth_service.gen_tokens(resp, user.id, user.role.name)
@@ -112,9 +112,9 @@ class UsersLoginRefresh(MethodView):
             self,
             auth_service: AuthService = Provide[Container.auth_service],
         ) -> Response:
-        """Обновить токен
+        """Обновить access токен
 
-        Обновить access токен.
+        Для успешного выполнения запроса необходим JWT в **cookies[refresh_token]**.
         """
 
         user = valid_user_id(g.user_id)

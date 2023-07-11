@@ -29,8 +29,5 @@ inline-quotes = 'single'
 fixture-parentheses = false
 mark-parentheses = false
 
-[tool.pytest.ini_options]
-testpaths = ['tests/functional']
-
 [tool.ruff.isort]
 known-local-folder = ['tests']

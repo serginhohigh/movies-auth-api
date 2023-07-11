@@ -6,18 +6,15 @@ services:
       # Маппим таким образом для того, чтобы фласка видела изменения в файлах
       # и перезапускала сервис
       - ./auth/src:/opt/app
-    entrypoint: flask run --host 0.0.0.0 --port 8000 --debug
-    profiles: ['dev']
+    entrypoint: bash
 
   postgres:
     ports:
       - '5432:5432'
-    profiles: ['dev']
 
   redis:
     ports:
       - '6379:6379'
-    profiles: ['dev']
 
   rediscommander:
     container_name: rediscommander
@@ -28,9 +25,6 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PASSWORD
-    networks:
-      - redis
-    profiles: ['dev']
 
   jaeger:
     container_name: jaeger
@@ -44,7 +38,3 @@ services:
     environment:
       - QUERY_BASE_PATH=/admin/jaeger
       - COLLECTOR_OTLP_ENABLED=true
-    networks:
-      - nginx
-      - auth
-    profiles: ['dev']

@@ -45,11 +45,13 @@ class Settings(BaseSettings):
     OPENAPI_JSON_PATH: str
     OPENAPI_URL_PREFIX: str
     OPENAPI_SWAGGER_UI_PATH: str
-    OPENAPI_SWAGGER_UI_URL: str = Field(default='https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.18.1/')
+    OPENAPI_SWAGGER_UI_URL: str = Field(
+        default='https://cdn.jsdelivr.net/npm/swagger-ui-dist@4.18.1/',
+    )
 
     DEBUG: bool = False
 
-    def __init__(self, **data: dict) -> None:
+    def __init__(self, **data) -> None:  # noqa: ANN003
         super().__init__(**data)
 
         self.SQLALCHEMY_DATABASE_URI = (

@@ -71,5 +71,6 @@ def make_request(api_client: requests.Session) -> Callable[..., requests.Respons
             method,
             url,
             json=body,
+            headers={'X-Request-Id': '6117bcb5-f903-45dc-9bc5-7d0c67643ea7'},
         )
     return inner

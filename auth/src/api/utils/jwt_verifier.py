@@ -16,7 +16,11 @@ from services.tokens import JWT, JWTClaims, TokenType
 def get_access_token(
         name: str = Provide[Container.config.JWT_ACCESS_COOKIE_NAME],
     ) -> JWT | None:
-    return request.cookies.get(name)
+    try:
+        return request.cookies.get(name) or request.headers.get(
+            'Authorization').split(' ')[1]
+    except AttributeError:
+        return None
 
 
 @inject

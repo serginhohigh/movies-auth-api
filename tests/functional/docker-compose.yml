@@ -36,8 +36,12 @@ services:
       - ../../auth/.env
     environment:
       # Переопределение переменных для тестов
+      - PG_HOST=test-postgres
       - REDIS_HOST=test-redis
       - ES_HOST=test-postgres
+    depends_on:
+      - postgres
+      - redis
 
   redis:
     container_name: test-redis

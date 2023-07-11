@@ -11,7 +11,7 @@ from db.redis import RedisCacheClient
 
 
 class Limiter:
-    def per_second(self, max_req_count: int, subkey: Callable ) -> Callable:
+    def per_second(self, max_req_count: int, subkey: Callable) -> Callable:
         """Декоратор для проверки посекундного ограничения трафика.
 
         Подробнее читайте в self.__check_limit_per_second.
