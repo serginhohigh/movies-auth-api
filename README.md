@@ -33,8 +33,9 @@
 - [Flask-SQLAlchemy](https://flask-sqlalchemy.palletsprojects.com/en/latest/) +
   [Flask-Migrate](https://flask-migrate.readthedocs.io/en/latest/) для взаимодействия с базой данных и выполнения миграций
 - [OTLP](https://opentelemetry.io/) + [jaeger](https://www.jaegertracing.io/)
+- [pytest](https://docs.pytest.org/en/latest/) для функционального тестирования
 
-## Как запуститьться
+## Как запуститься
 
 - Выполнить команду `make install`
 - Заполнить `.env` файлы в каталогах `./`, `./auth`, `./tests/functional`
@@ -48,12 +49,12 @@ docker exec -it auth flask create-superuser admin admin@mail.local
 
 ---
 
-Для включения трассировки необходимо выполнить указанные ниже действия. Для просмотра в браузере используйте путь `/admin/jaeger`
+Для включения трассировки необходимо выполнить указанные ниже действия. Для просмотра в браузере используйте путь `/admin/jaeger`.
 
 - изменить в `./auth/.env` переменную `DEBUG` и перезапустить сервис
 - поднять jaeger с помощью команды `make dev-up c=jaeger`
 
-Проверить rate-limiting можно с помощью указанной ниже команды. Текущая настройка позволяет отправлять 3 запроса в секунду
+Проверить rate-limiting можно с помощью указанной ниже команды. Текущая настройка позволяет отправлять 3 запроса в секунду.
 
 ```
 for n in {1..22}; do echo $(curl -s -w " :: HTTP %{http_code}, %{size_download} bytes, %{time_total} s" -X GET http://127.0.0.1:8000/api/v1/service/ping); sleep 0.1; done
@@ -69,12 +70,22 @@ for n in {1..22}; do echo $(curl -s -w " :: HTTP %{http_code}, %{size_download} 
 >
 > Ручка для входа с помощью гугла - `/api/v1/oauth/google/login`
 
+## Как запустить тестирование
+
+- Выполнить команду `make test`
+  > При необходимости выполните `make install`
+  >
+  > Обратите внимание, что все `.env` файлы в каталогах `./`, `./ugc` и `./tests/functional` должны быть идентичными,
+  > то есть иметь одинаковые значения у одинаковых переменных
+
 ## TODO
 
-- [ ] Service-Repository pattern (модель пользователя довольно раздута)
+- [ ] Service-Repository pattern
+- [ ] Убрать в сервисный слой логику в модели пользователя
 - [ ] PDM or Poetry
 - [ ] Gunicorn logging
 - [ ] Postgres waiter (при тестах могут быть проблемы с миграциями,
       см. [тут](https://github.com/serginhohigh/movies-auth-api/blob/eba2d8a09032a4d2b99b9c98633c986eb1f309ef/Makefile#L50)
 - [ ] Добавить статику для swagger,
       см. [тут](https://github.com/serginhohigh/movies-auth-api/blob/eba2d8a09032a4d2b99b9c98633c986eb1f309ef/auth/src/core/config.py#L49)
+- [ ] Перевести README.md на английский язык
