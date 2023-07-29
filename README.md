@@ -35,6 +35,13 @@
 - [OTLP](https://opentelemetry.io/) + [jaeger](https://www.jaegertracing.io/)
 - [pytest](https://docs.pytest.org/en/latest/) для функционального тестирования
 
+## Зависимости
+
+- GNU make
+- docker
+- docker compose V2
+- poetry (Optional)
+
 ## Как запуститься
 
 - Выполнить команду `make install`
@@ -82,7 +89,7 @@ for n in {1..22}; do echo $(curl -s -w " :: HTTP %{http_code}, %{size_download} 
 
 - [ ] Service-Repository pattern
 - [ ] Убрать в сервисный слой логику в модели пользователя
-- [ ] PDM or Poetry
+- [x] PDM or Poetry
 - [ ] Gunicorn logging
 - [ ] Postgres waiter (при тестах могут быть проблемы с миграциями,
       см. [тут](https://github.com/serginhohigh/movies-auth-api/blob/eba2d8a09032a4d2b99b9c98633c986eb1f309ef/Makefile#L50)

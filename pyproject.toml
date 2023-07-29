@@ -1,3 +1,46 @@
+[tool.poetry]
+name = "auth"
+version = "0.1.0"
+description = "Movies auth service"
+authors = ["serginhohigh <25456361+serginhohigh@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+bcrypt = "4.0.1"
+dependency-injector = "4.41.0"
+flask-smorest = "0.41.0"
+flask = "2.2.3"
+flask-migrate = "4.0.4"
+flask-sqlalchemy = "3.0.3"
+gevent = "22.10.2"
+gunicorn = "20.1.0"
+psycopg2-binary = "2.9.6"
+pydantic = "1.10.7"
+pyjwt = "2.6.0"
+redis = "4.5.4"
+requests = "2.28.2"
+authlib = "1.2.0"
+opentelemetry-sdk = "1.17.0"
+opentelemetry-api = "1.17.0"
+opentelemetry-instrumentation-redis = "0.38b0"
+opentelemetry-instrumentation-sqlalchemy = "0.38b0"
+opentelemetry-instrumentation-flask = "0.38b0"
+opentelemetry-exporter-otlp-proto-grpc = "1.17.0"
+
+[tool.poetry.group.test.dependencies]
+bcrypt = "4.0.1"
+pytest = "7.2.2"
+pytest-order = "1.1.0"
+requests = "2.28.2"
+pydantic = "1.10.7"
+psycopg = "3.1.8"
+redis = "4.5.4"
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.0.280"
+pre-commit = "^3.3.3"
+
 [tool.ruff]
 select = ['ANN', 'ARG', 'B', 'BLE', 'C40', 'COM', 'DJ', 'DTZ', 'E', 'EM', 'ERA001', 'EXE', 'F', 'FBT', 'G', 'I', 'ICN', 'INP', 'ISC', 'N', 'PIE', 'PL', 'PT', 'PYI', 'Q', 'RET', 'RSE', 'S', 'SIM', 'SLF', 'T20', 'TRY', 'W', 'YTT', 'UP']
 exclude = ['auth/src/migrations']
@@ -31,3 +74,7 @@ mark-parentheses = false
 
 [tool.ruff.isort]
 known-local-folder = ['tests']
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
